@@ -554,13 +554,19 @@ const inputForm = document.querySelector("input");
 const loadBtn = document.querySelector("#load-more");
 const searchForm = document.querySelector("#search-form");
 const gallery = document.querySelector(".gallery");
-function fetchPicture(clientRequest, page) {
-    return (0, _axiosDefault.default).get(`${BASE_URL}/?key=${KEY}&q=${clientRequest}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=40`).then((responce)=>{
-        console.log(responce);
-        return responce;
-    }).catch((error)=>{
-        console.log("ERROR: " + error);
-    });
+async function fetchPicture(clientRequest, page) {
+    try {
+        return (0, _axiosDefault.default).get(`${BASE_URL}/?key=${KEY}&q=${clientRequest}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=40`);
+    } catch (error) {
+        console.log("ERROR: ", error);
+    }
+//   .then(responce => {
+//     console.log(responce);
+//     return responce;
+//   })
+//   .catch(error => {
+//     console.log('ERROR: ' + error);
+//   });
 }
 function onSearch(event) {
     event.preventDefault();
