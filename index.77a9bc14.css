@@ -21,6 +21,14 @@ li {
   display: flex;
 }
 
+button {
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  font-size: 12px;
+  display: flex;
+}
+
 .is-hidden {
   display: none;
 }
