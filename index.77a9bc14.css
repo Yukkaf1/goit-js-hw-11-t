@@ -11,23 +11,22 @@ body {
   line-height: 1.5;
 }
 
-#search-box {
-  font: inherit;
-  max-width: 320px;
-  margin-bottom: 16px;
-  padding: 8px;
-}
-
 li {
   list-style: none;
 }
 
-.flag {
-  width: 60px;
+.gallery {
+  flex-wrap: wrap;
+  justify-content: center;
+  display: flex;
 }
 
-.country-info {
-  padding-left: 20px;
+.is-hidden {
+  display: none;
+}
+
+.search-form {
+  display: flex;
 }
 
 body.hidden-scroll {
