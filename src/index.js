@@ -1,79 +1,87 @@
 import './css/styles.css';
 import _debounce from 'lodash.debounce';
 import Notiflix from 'notiflix';
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
 
-const DEBOUNCE_DELAY = 300;
+import axios from 'axios';
 
-const COUNTRIES_API = txt =>
-  `https://restcountries.com/v3.1/name/${txt}`;
+const BASE_URL = 'https://pixabay.com/api/';
+const KEY = '33761438-9314d2b90b41fb92b07a88ae9';
+let page = 1;
 
-const refs = {
-    seachBox: document.querySelector('#search-box'),
-    countryList: document.querySelector('.country-list'),
-    countryInfo: document.querySelector('.country-info'),
-}
+  const inputForm = document.querySelector('input');
+  const loadMoreBtn = document.querySelector('.load-more');
+  const searchForm = document.querySelector('#search-form');
+  const gallery = document.querySelector('.gallery');
 
-function clearInput() {
-    refs.countryInfo.innerHTML  = '';
-    refs.countryList.innerHTML = '';
-}
-
-function fetchCountries(txt) {
-    if (!txt) {
-        refs.countryList.innerHTML = '';
-        refs.countryInfo.innerHTML = '';
-        return;
-      }    
-fetch(COUNTRIES_API(txt))
-.then(response => {
-    if (!response.ok) {
-        renderCountriesList.innerHTML = `<h2>No country with that name</h2>`;
-        Notiflix.Notify.failure('Oops, there is no country with that name');
-      } else return response.json();
-    })
-.then(countries => {
-    clearInput()
-    if (countries.length > 10) {
-        Notiflix.Notify.info("Too many matches found. Please enter a more specific name.");
-        return
-    }
-    else if (countries.length === 1) 
-        refs.countryInfo.innerHTML = renderCountriesInfo(countries[0]);
-   else (countries.length > 1 && countries.length < 10)
-    {
-        const countriesArray = countries.map(country => renderCountriesList(country)).join('');
-        refs.countryList.innerHTML = countriesArray;
-    } 
-    
-})
-.catch(console.log);
+  function fetchPicture(clientRequest, page) {
+      return axios.get(
+        `${BASE_URL}/?key=${KEY}&q=${clientRequest}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=40`
+  )
+  .then(responce => {
+    console.log(responce);
+    return responce;
+  })
+  .catch(error => {
+    console.log('ERROR: ' + error);
+  });
 };
 
-function renderCountriesList(country) {
+searchForm.addEventListener('submit', onSearch);
 
-    return `<li> 
-    <h2 class="country-list-name">
-    <img class = "flag" src = "${country.flags.svg}" />
-    ${country.name.official}</h2>
-    </li>
-    `;
-}
+function onSearch(event) {
+    event.preventDefault();
+    gallery.innerHTML = '';
+    const input = inputForm.value.trim();
+    if (input.length !== 0) {
+      page = 1;
+      fetchPicture(input, page)
+        .then(buildForSearch)
+        .catch(error => {});
+    }
+  };
 
-function renderCountriesInfo({capital, population, languages}) {
+  function buildForSearch(images) {
+    if (images.data.totalHits === 0) {
+      Notiflix.Notify.failure(
+        'Sorry, there are no images matching your search query. Please try again.'
+      );
+      gallery.innerHTML = '';
+    }
+    if (images.data.totalHits !== 0) {
+      Notiflix.Notify.success(`Hooray! We found ${images.data.totalHits} images.`);
+      const markup = images.data.hits
+        .map(
+          ({
+            largeImageURL,
+            webformatURL,
+            tags,
+            likes,
+            views,
+            comments,
+            downloads,
+          }) => {
+            return `
+                <div class="photo-card">
+                <a href='${largeImageURL}'><img src="${webformatURL}" alt="${tags}" loading="lazy" width=310 height=205/></a>
+                <div class="info">
+                  <p class="info-item"><b>Likes</b>${likes}</p>
+                  <p class="info-item"><b>Views</b>${views}</p>
+                  <p class="info-item"><b>Comments</b>${comments}</p>
+                  <p class="info-item"><b>Downloads</b>${downloads}</p>
+                </div>
+              </div>`;
+          }
+        )
+        .join('');
+      gallery.insertAdjacentHTML('beforeend', markup);
+      lightbox.refresh();
+    }
+  }
 
-    return `
-    <div class="country-info">
-    <p><b>capital:</b> ${capital} </p>
-    <p><b>population:</b>${population}</p>
-    <p><b>languages:</b> ${Object.values(languages)}</p>
-    </div>
-    </li>
-    `;
-}
-
-const fetchCountriesDebounced = _debounce(fetchCountries, DEBOUNCE_DELAY);
-
-refs.seachBox.addEventListener('input', function (e) {
-    fetchCountriesDebounced(e.target.value.trim());
+  const lightbox = new SimpleLightbox('.gallery a', {
+    captionsData: 'alt',
+    captionDelay: 500,
   });
-  
+
