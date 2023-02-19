@@ -14,7 +14,6 @@ const lightbox = new SimpleLightbox('.gallery a', {
     captionDelay: 500,
   });
 
-
 let page = 1;
 
   const inputForm = document.querySelector('input');
