@@ -21,17 +21,23 @@ let page = 1;
   const searchForm = document.querySelector('#search-form');
   const gallery = document.querySelector('.gallery');
 
-  function fetchPicture(clientRequest, page) {
+  async function fetchPicture(clientRequest, page) {
+      try {
       return axios.get(
         `${BASE_URL}/?key=${KEY}&q=${clientRequest}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=40`
-  )
-  .then(responce => {
-    console.log(responce);
-    return responce;
-  })
-  .catch(error => {
-    console.log('ERROR: ' + error);
-  });
+  )}
+catch (error) {
+    console.log('ERROR: ' , error);
+}
+
+//   .then(responce => {
+//     console.log(responce);
+//     return responce;
+//   })
+//   .catch(error => {
+//     console.log('ERROR: ' + error);
+//   });
+
 };
 
 function onSearch(event) {
